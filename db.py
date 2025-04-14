@@ -1,10 +1,22 @@
 import psycopg2
+import os
+from dotenv import load_dotenv
+import urllib.parse as urlparse
 
-def connect_booking_db():
+load_dotenv()
+
+def get_connection():
+    result = urlparse.urlparse(os.getenv("DATABASE_URL"))
+    username = result.username
+    password = result.password
+    database = result.path[1:]
+    hostname = result.hostname
+    port = result.port
+
     return psycopg2.connect(
-        host=st.secrets["booking_db"]["DB_HOST"],
-        port=st.secrets["booking_db"]["DB_PORT"],
-        database=st.secrets["booking_db"]["DB_NAME"],
-        user=st.secrets["booking_db"]["DB_USER"],
-        password=st.secrets["booking_db"]["DB_PASS"]
+        database=database,
+        user=username,
+        password=password,
+        host=hostname,
+        port=port
     )
