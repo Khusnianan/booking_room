@@ -116,7 +116,7 @@ rows = cur.fetchall()
 df = pd.DataFrame(rows, columns=["ID", "Ruangan", "Nama", "Tanggal", "Mulai", "Selesai", "User"])
 st.dataframe(df.drop(columns=["ID"]), use_container_width=True)
 
-# --- Edit Booking Sendiri ---
+# --- Edit & Delete Booking Sendiri ---
 st.subheader("✏️ Edit Booking Saya")
 my_bookings = df[df["User"] == st.session_state.username]
 
@@ -162,10 +162,24 @@ else:
                             st.success("✅ Booking berhasil diperbarui!")
                             st.rerun()
 
+        # --- Konfirmasi Hapus Booking ---
+        with st.expander("🗑️ Hapus Booking Ini?", expanded=False):
+            st.warning("⚠️ Tindakan ini akan menghapus booking secara permanen.")
+            konfirmasi = st.checkbox("Saya yakin ingin menghapus booking ini")
+
+            if konfirmasi:
+                if st.button("✅ Konfirmasi Hapus"):
+                    cur.execute("DELETE FROM booking WHERE id = %s AND user_id = %s", (selected_id, st.session_state.user_id))
+                    conn.commit()
+                    st.success("✅ Booking berhasil dihapus.")
+                    st.rerun()
+
+# --- Tombol Logout di Bawah ---
+st.markdown("---")
 if st.button("🚪 Logout"):
     st.session_state.logged_in = False
     st.rerun()
-    
+
 # --- Tutup koneksi ---
 cur.close()
 conn.close()
