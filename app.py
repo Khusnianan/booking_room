@@ -3,11 +3,25 @@ import psycopg2
 import pandas as pd
 from datetime import datetime, time
 
-# --- Konfigurasi ---
-st.set_page_config(page_title="Booking Room", layout="wide")
-st.title("📅 Booking Room Meeting")
+# ------------------- CONFIG & STYLE -------------------
+st.set_page_config(page_title="Booking Room Meeting", layout="wide")
 
-# --- Koneksi ke DB ---
+st.markdown("""
+    <style>
+    .main {background-color: #f0f9ff;}
+    .stButton>button {background-color:#007acc; color:white;}
+    .stTextInput>div>div>input {background-color:#ffffff;}
+    .stSelectbox>div>div {background-color:#ffffff;}
+    .stDateInput>div>input {background-color:#ffffff;}
+    .stTimeInput>div>input {background-color:#ffffff;}
+    .stDataFrame th, .stDataFrame td { font-size: 14px !important; }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("📅 Booking Room Meeting")
+st.caption("Pesan ruangan meeting dengan mudah dan aman 🎯")
+
+# ------------------- DB CONNECTION -------------------
 def connect_db():
     return psycopg2.connect(
         host=st.secrets["booking_db"]["DB_HOST"],
@@ -20,31 +34,50 @@ def connect_db():
 conn = connect_db()
 cur = conn.cursor()
 
-# --- Login ---
+# ------------------- LOGIN SYSTEM -------------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    st.subheader("🔐 Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        cur.execute("SELECT id FROM users WHERE username=%s AND password=%s", (username, password))
-        result = cur.fetchone()
-        if result:
-            st.session_state.logged_in = True
-            st.session_state.user_id = result[0]
-            st.session_state.username = username
-            st.success(f"✅ Login berhasil sebagai `{username}`")
-            st.rerun()
-        else:
-            st.error("❌ Username atau password salah.")
+    menu = st.radio("Menu", ["🔐 Login", "✍️ Registrasi User Baru"])
+
+    if menu == "🔐 Login":
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        if st.button("Login"):
+            cur.execute("SELECT id FROM users WHERE username=%s AND password=%s", (username, password))
+            user = cur.fetchone()
+            if user:
+                st.session_state.logged_in = True
+                st.session_state.user_id = user[0]
+                st.session_state.username = username
+                st.success(f"✅ Login berhasil sebagai `{username}`")
+                st.rerun()
+            else:
+                st.error("❌ Username atau password salah.")
+
+    elif menu == "✍️ Registrasi User Baru":
+        new_user = st.text_input("Username Baru")
+        new_pass = st.text_input("Password Baru", type="password")
+        if st.button("Buat Akun"):
+            if not new_user or not new_pass:
+                st.warning("❗ Username dan password tidak boleh kosong.")
+            else:
+                try:
+                    cur.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (new_user, new_pass))
+                    conn.commit()
+                    st.success("✅ Registrasi berhasil! Silakan login.")
+                except psycopg2.errors.UniqueViolation:
+                    conn.rollback()
+                    st.error("❌ Username sudah digunakan.")
+
     st.stop()
 
-st.markdown(f"👤 Login sebagai **{st.session_state.username}**")
+# ------------------- MAIN APP -------------------
+st.markdown(f"👤 Login sebagai: **{st.session_state.username}**")
 
 # --- Form Booking ---
-st.subheader("📝 Form Booking Ruangan")
+st.subheader("📝 Booking Ruangan")
 with st.form("form_booking"):
     nama = st.text_input("Nama Pemesan", value=st.session_state.username)
     tanggal = st.date_input("Tanggal", min_value=datetime.today())
@@ -74,7 +107,7 @@ with st.form("form_booking"):
                 st.rerun()
 
 # --- Tampilkan Semua Booking ---
-st.subheader("📋 Jadwal Booking Semua User")
+st.subheader("📋 Jadwal Booking Aktif")
 cur.execute("""
     SELECT b.id, b.room, b.nama, b.tanggal, b.jam_mulai, b.jam_selesai, u.username
     FROM booking b
@@ -85,38 +118,38 @@ rows = cur.fetchall()
 df = pd.DataFrame(rows, columns=["ID", "Ruangan", "Nama", "Tanggal", "Mulai", "Selesai", "User"])
 st.dataframe(df.drop(columns=["ID"]), use_container_width=True)
 
-# --- Edit Booking User Sendiri ---
+# --- Edit Booking Sendiri ---
 st.subheader("✏️ Edit Booking Saya")
 my_bookings = df[df["User"] == st.session_state.username]
 
 if my_bookings.empty:
-    st.info("Kamu belum memiliki booking.")
+    st.info("📭 Kamu belum memiliki booking.")
 else:
-    booking_options = {f"{row['Tanggal']} - {row['Ruangan']} ({row['Mulai']} - {row['Selesai']})": row["ID"] for _, row in my_bookings.iterrows()}
-    selected = st.selectbox("Pilih booking untuk diedit", list(booking_options.keys()))
-    selected_id = booking_options[selected]
+    options = {f"{row['Tanggal']} - {row['Ruangan']} ({row['Mulai']} - {row['Selesai']})": row["ID"] for _, row in my_bookings.iterrows()}
+    selected = st.selectbox("Pilih booking untuk diedit", list(options.keys()))
+    selected_id = options[selected]
 
-    cur.execute("SELECT room, nama, tanggal, jam_mulai, jam_selesai FROM booking WHERE id = %s", (selected_id,))
+    cur.execute("SELECT room, nama, tanggal, jam_mulai, jam_selesai FROM booking WHERE id=%s", (selected_id,))
     old_room, old_nama, old_tgl, old_start, old_end = cur.fetchone()
 
-    with st.form("form_edit_booking"):
+    with st.form("form_edit"):
         new_room = st.selectbox("Ruangan", [f"Room {i}" for i in range(1, 21)], index=int(old_room.split()[-1]) - 1)
-        new_nama = st.text_input("Nama Pemesan", value=old_nama)
+        new_nama = st.text_input("Nama", value=old_nama)
         new_tanggal = st.date_input("Tanggal", value=old_tgl)
-        new_mulai = st.time_input("Jam Mulai", value=old_start)
-        new_selesai = st.time_input("Jam Selesai", value=old_end)
+        new_start = st.time_input("Jam Mulai", value=old_start)
+        new_end = st.time_input("Jam Selesai", value=old_end)
         update = st.form_submit_button("💾 Simpan Perubahan")
 
         if update:
-            if new_mulai >= new_selesai:
-                st.error("❌ Jam mulai harus sebelum selesai.")
+            if new_start >= new_end:
+                st.error("❌ Jam mulai harus sebelum jam selesai.")
             else:
                 cur.execute("""
                     SELECT * FROM booking
                     WHERE room = %s AND tanggal = %s
                     AND (jam_mulai, jam_selesai) OVERLAPS (%s, %s)
                     AND id != %s
-                """, (new_room, new_tanggal, new_mulai, new_selesai, selected_id))
+                """, (new_room, new_tanggal, new_start, new_end, selected_id))
                 if cur.fetchone():
                     st.error("❌ Jadwal bentrok dengan booking lain.")
                 else:
@@ -124,7 +157,7 @@ else:
                         UPDATE booking
                         SET room=%s, nama=%s, tanggal=%s, jam_mulai=%s, jam_selesai=%s
                         WHERE id = %s
-                    """, (new_room, new_nama, new_tanggal, new_mulai, new_selesai, selected_id))
+                    """, (new_room, new_nama, new_tanggal, new_start, new_end, selected_id))
                     conn.commit()
                     st.success("✅ Booking berhasil diperbarui!")
                     st.rerun()
