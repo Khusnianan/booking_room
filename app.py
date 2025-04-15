@@ -18,7 +18,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("📅 Booking Room Meeting")
-st.caption("Pesan ruangan meeting tanpa bentrok jadwal 🎯")
+st.caption("Atur jadwal dulu sebelum meeting 🎯")
 
 # ------------------- DB CONNECTION -------------------
 def connect_db():
