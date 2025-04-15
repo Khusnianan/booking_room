@@ -8,85 +8,12 @@ st.set_page_config(page_title="Booking Room Meeting", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp {
-        background-color: #f5f7fa;
-        font-family: 'Segoe UI', sans-serif;
-        color: #1e1e1e;
+    .main {background-color: #f0f9ff;}
+    .stButton>button {background-color:#007acc; color:white;}
+    .stTextInput>div>div>input, .stDateInput>div>input, .stTimeInput>div>input {
+        background-color:#ffffff; border-radius: 5px;
     }
-
-    h1, h2, h3 {
-        color: #0c2340;
-        font-weight: 700;
-    }
-
-    .stCaption {
-        color: #3e3e3e;
-        font-style: italic;
-    }
-
-    .stSubheader {
-        color: #0c2340;
-        font-weight: 600;
-    }
-
-    .stButton>button {
-        background-color: #0c2340;
-        color: #ffffff;
-        font-weight: 600;
-        padding: 0.5em 1.2em;
-        border-radius: 6px;
-        border: none;
-    }
-
-    .stButton>button:hover {
-        background-color: #08182f;
-        color: white;
-    }
-
-    .stTextInput>div>div>input,
-    .stDateInput>div>input,
-    .stTimeInput>div>input {
-        padding: 8px 10px;
-        font-size: 0.95rem;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    },
-    .stSelectbox>div>div {
-        background-color: #ffffff;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        padding: 8px;
-        min-height: 40px;
-        overflow: visible;
-    }
-
-    .stRadio > div {
-        background-color: #ffffff;
-        padding: 12px;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-    }
-
-    .stDataFrame {
-        background-color: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 10px;
-    }
-
-    .stExpanderHeader {
-        font-weight: 600;
-        font-size: 1rem;
-        color: #0c2340;
-    }
-
-    .stMarkdown {
-        color: #1a1a1a;
-    }
-
-    .stMarkdown h1 {
-        font-size: 2em;
-    }
+    .stSelectbox>div>div {background-color:#ffffff;}
     </style>
 """, unsafe_allow_html=True)
 
