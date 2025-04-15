@@ -81,7 +81,13 @@ with st.form("form_booking"):
     tanggal = st.date_input("Tanggal", min_value=datetime.today())
     jam_mulai = st.time_input("Jam Mulai", time(9, 0))
     jam_selesai = st.time_input("Jam Selesai", time(10, 0))
-    room = st.selectbox("Pilih Ruangan", [f"Room {i}" for i in range(1, 21)])
+    room_names = [
+    "Meeting Room Anggrek", "Meeting Room Mawar", "Meeting Room Melati",
+    "Meeting Room Kenanga", "Meeting Room Kamboja", "Meeting Room Cendana",
+    "Meeting Room Sakura", "Meeting Room Bougenville", "Meeting Room Teratai",
+    "Meeting Room Lavender"
+    ]
+    room = st.selectbox("Pilih Ruangan", room_names)
     simpan = st.form_submit_button("🔐 Booking Sekarang")
 
     if simpan:
@@ -133,7 +139,7 @@ else:
 
         with st.expander("🔧 Edit Booking"):
             with st.form("form_edit"):
-                new_room = st.selectbox("Ruangan", [f"Room {i}" for i in range(1, 21)], index=int(old_room.split()[-1]) - 1)
+                new_room = st.selectbox("Ruangan", room_names, index=index_default)
                 new_nama = st.text_input("Nama", value=old_nama)
                 new_tanggal = st.date_input("Tanggal", value=old_tgl)
                 new_start = st.time_input("Jam Mulai", value=old_start)
