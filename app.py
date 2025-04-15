@@ -45,13 +45,19 @@ st.markdown("""
 
     .stTextInput>div>div>input,
     .stDateInput>div>input,
-    .stTimeInput>div>input,
+    .stTimeInput>div>input {
+        padding: 8px 10px;
+        font-size: 0.95rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    },
     .stSelectbox>div>div {
         background-color: #ffffff;
-        border: 1px solid #bbb;
+        border: 1px solid #ccc;
         border-radius: 5px;
-        padding: 6px;
-        font-size: 0.95rem;
+        padding: 8px;
+        min-height: 40px;
+        overflow: visible;
     }
 
     .stRadio > div {
