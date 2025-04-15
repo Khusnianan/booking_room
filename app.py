@@ -74,10 +74,6 @@ if not st.session_state.logged_in:
 # ------------------- MAIN APP -------------------
 st.markdown(f"👤 Login sebagai: **{st.session_state.username}**")
 
-if st.button("🚪 Logout"):
-    st.session_state.logged_in = False
-    st.rerun()
-
 # --- Form Booking ---
 st.subheader("📝 Booking Ruangan")
 with st.form("form_booking"):
@@ -166,6 +162,10 @@ else:
                             st.success("✅ Booking berhasil diperbarui!")
                             st.rerun()
 
+if st.button("🚪 Logout"):
+    st.session_state.logged_in = False
+    st.rerun()
+    
 # --- Tutup koneksi ---
 cur.close()
 conn.close()
