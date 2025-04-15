@@ -8,12 +8,61 @@ st.set_page_config(page_title="Booking Room Meeting", layout="wide")
 
 st.markdown("""
     <style>
-    .main {background-color: #f0f9ff;}
-    .stButton>button {background-color:#007acc; color:white;}
-    .stTextInput>div>div>input, .stDateInput>div>input, .stTimeInput>div>input {
-        background-color:#ffffff; border-radius: 5px;
+    body, .stApp {
+        background-color: #f4f4f4;
+        font-family: 'Segoe UI', sans-serif;
+        color: #333333;
     }
-    .stSelectbox>div>div {background-color:#ffffff;}
+    .stButton>button {
+        background-color: #003366;
+        color: white;
+        padding: 0.45em 1.2em;
+        border-radius: 6px;
+        font-weight: 600;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #002244;
+        color: white;
+    }
+    .stTextInput>div>div>input,
+    .stDateInput>div>input,
+    .stTimeInput>div>input,
+    .stSelectbox>div>div {
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        padding: 6px;
+        font-size: 0.95rem;
+    }
+    .stRadio > div {
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-top: 10px;
+    }
+    .stDataFrame {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 8px;
+    }
+    .stExpanderHeader {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #003366;
+    }
+    .stCaption {
+        font-style: italic;
+        color: #555555;
+    }
+    .stSubheader {
+        color: #003366;
+    }
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+        color: #003366;
+    }
     </style>
 """, unsafe_allow_html=True)
 
