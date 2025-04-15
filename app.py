@@ -10,16 +10,15 @@ st.markdown("""
     <style>
     .main {background-color: #f0f9ff;}
     .stButton>button {background-color:#007acc; color:white;}
-    .stTextInput>div>div>input {background-color:#ffffff;}
+    .stTextInput>div>div>input, .stDateInput>div>input, .stTimeInput>div>input {
+        background-color:#ffffff; border-radius: 5px;
+    }
     .stSelectbox>div>div {background-color:#ffffff;}
-    .stDateInput>div>input {background-color:#ffffff;}
-    .stTimeInput>div>input {background-color:#ffffff;}
-    .stDataFrame th, .stDataFrame td { font-size: 14px !important; }
     </style>
 """, unsafe_allow_html=True)
 
 st.title("📅 Booking Room Meeting")
-st.caption("Pesan ruangan meeting dengan mudah dan aman 🎯")
+st.caption("Pesan ruangan meeting tanpa bentrok jadwal 🎯")
 
 # ------------------- DB CONNECTION -------------------
 def connect_db():
@@ -70,11 +69,14 @@ if not st.session_state.logged_in:
                 except psycopg2.errors.UniqueViolation:
                     conn.rollback()
                     st.error("❌ Username sudah digunakan.")
-
     st.stop()
 
 # ------------------- MAIN APP -------------------
 st.markdown(f"👤 Login sebagai: **{st.session_state.username}**")
+
+if st.button("🚪 Logout"):
+    st.session_state.logged_in = False
+    st.rerun()
 
 # --- Form Booking ---
 st.subheader("📝 Booking Ruangan")
@@ -126,41 +128,43 @@ if my_bookings.empty:
     st.info("📭 Kamu belum memiliki booking.")
 else:
     options = {f"{row['Tanggal']} - {row['Ruangan']} ({row['Mulai']} - {row['Selesai']})": row["ID"] for _, row in my_bookings.iterrows()}
-    selected = st.selectbox("Pilih booking untuk diedit", list(options.keys()))
-    selected_id = options[selected]
+    selected_label = st.selectbox("Pilih booking untuk diedit", ["Pilih..."] + list(options.keys()))
 
-    cur.execute("SELECT room, nama, tanggal, jam_mulai, jam_selesai FROM booking WHERE id=%s", (selected_id,))
-    old_room, old_nama, old_tgl, old_start, old_end = cur.fetchone()
+    if selected_label != "Pilih...":
+        selected_id = options[selected_label]
+        cur.execute("SELECT room, nama, tanggal, jam_mulai, jam_selesai FROM booking WHERE id=%s", (selected_id,))
+        old_room, old_nama, old_tgl, old_start, old_end = cur.fetchone()
 
-    with st.form("form_edit"):
-        new_room = st.selectbox("Ruangan", [f"Room {i}" for i in range(1, 21)], index=int(old_room.split()[-1]) - 1)
-        new_nama = st.text_input("Nama", value=old_nama)
-        new_tanggal = st.date_input("Tanggal", value=old_tgl)
-        new_start = st.time_input("Jam Mulai", value=old_start)
-        new_end = st.time_input("Jam Selesai", value=old_end)
-        update = st.form_submit_button("💾 Simpan Perubahan")
+        with st.expander("🔧 Edit Booking"):
+            with st.form("form_edit"):
+                new_room = st.selectbox("Ruangan", [f"Room {i}" for i in range(1, 21)], index=int(old_room.split()[-1]) - 1)
+                new_nama = st.text_input("Nama", value=old_nama)
+                new_tanggal = st.date_input("Tanggal", value=old_tgl)
+                new_start = st.time_input("Jam Mulai", value=old_start)
+                new_end = st.time_input("Jam Selesai", value=old_end)
+                update = st.form_submit_button("💾 Simpan Perubahan")
 
-        if update:
-            if new_start >= new_end:
-                st.error("❌ Jam mulai harus sebelum jam selesai.")
-            else:
-                cur.execute("""
-                    SELECT * FROM booking
-                    WHERE room = %s AND tanggal = %s
-                    AND (jam_mulai, jam_selesai) OVERLAPS (%s, %s)
-                    AND id != %s
-                """, (new_room, new_tanggal, new_start, new_end, selected_id))
-                if cur.fetchone():
-                    st.error("❌ Jadwal bentrok dengan booking lain.")
-                else:
-                    cur.execute("""
-                        UPDATE booking
-                        SET room=%s, nama=%s, tanggal=%s, jam_mulai=%s, jam_selesai=%s
-                        WHERE id = %s
-                    """, (new_room, new_nama, new_tanggal, new_start, new_end, selected_id))
-                    conn.commit()
-                    st.success("✅ Booking berhasil diperbarui!")
-                    st.rerun()
+                if update:
+                    if new_start >= new_end:
+                        st.error("❌ Jam mulai harus sebelum jam selesai.")
+                    else:
+                        cur.execute("""
+                            SELECT * FROM booking
+                            WHERE room = %s AND tanggal = %s
+                            AND (jam_mulai, jam_selesai) OVERLAPS (%s, %s)
+                            AND id != %s
+                        """, (new_room, new_tanggal, new_start, new_end, selected_id))
+                        if cur.fetchone():
+                            st.error("❌ Jadwal bentrok dengan booking lain.")
+                        else:
+                            cur.execute("""
+                                UPDATE booking
+                                SET room=%s, nama=%s, tanggal=%s, jam_mulai=%s, jam_selesai=%s
+                                WHERE id = %s
+                            """, (new_room, new_nama, new_tanggal, new_start, new_end, selected_id))
+                            conn.commit()
+                            st.success("✅ Booking berhasil diperbarui!")
+                            st.rerun()
 
 # --- Tutup koneksi ---
 cur.close()
