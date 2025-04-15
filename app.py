@@ -8,60 +8,78 @@ st.set_page_config(page_title="Booking Room Meeting", layout="wide")
 
 st.markdown("""
     <style>
-    body, .stApp {
-        background-color: #f4f4f4;
+    .stApp {
+        background-color: #f5f7fa;
         font-family: 'Segoe UI', sans-serif;
-        color: #333333;
+        color: #1e1e1e;
     }
-    .stButton>button {
-        background-color: #003366;
-        color: white;
-        padding: 0.45em 1.2em;
-        border-radius: 6px;
+
+    h1, h2, h3 {
+        color: #0c2340;
+        font-weight: 700;
+    }
+
+    .stCaption {
+        color: #3e3e3e;
+        font-style: italic;
+    }
+
+    .stSubheader {
+        color: #0c2340;
         font-weight: 600;
+    }
+
+    .stButton>button {
+        background-color: #0c2340;
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.5em 1.2em;
+        border-radius: 6px;
         border: none;
     }
+
     .stButton>button:hover {
-        background-color: #002244;
+        background-color: #08182f;
         color: white;
     }
+
     .stTextInput>div>div>input,
     .stDateInput>div>input,
     .stTimeInput>div>input,
     .stSelectbox>div>div {
         background-color: #ffffff;
-        border: 1px solid #cccccc;
-        border-radius: 4px;
+        border: 1px solid #bbb;
+        border-radius: 5px;
         padding: 6px;
         font-size: 0.95rem;
     }
+
     .stRadio > div {
         background-color: #ffffff;
-        padding: 15px;
-        border-radius: 8px;
+        padding: 12px;
+        border-radius: 6px;
         border: 1px solid #ddd;
-        margin-top: 10px;
     }
+
     .stDataFrame {
         background-color: #ffffff;
-        border: 1px solid #ddd;
+        border: 1px solid #e0e0e0;
         border-radius: 6px;
-        padding: 8px;
+        padding: 10px;
     }
+
     .stExpanderHeader {
         font-weight: 600;
         font-size: 1rem;
-        color: #003366;
+        color: #0c2340;
     }
-    .stCaption {
-        font-style: italic;
-        color: #555555;
+
+    .stMarkdown {
+        color: #1a1a1a;
     }
-    .stSubheader {
-        color: #003366;
-    }
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        color: #003366;
+
+    .stMarkdown h1 {
+        font-size: 2em;
     }
     </style>
 """, unsafe_allow_html=True)
